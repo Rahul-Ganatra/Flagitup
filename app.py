@@ -2,12 +2,17 @@ from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS  # Import CORS
 import firebase_admin
 from firebase_admin import credentials, firestore
+import os
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "http://127.0.0.1:5000"}})
 
 # Initialize Firebase
-cred = credentials.Certificate("serviceAccountKey.json")
+load_dotenv()
+service_key = os.getenv('SERVICE_KEY')
+
+cred = credentials.Certificate(service_key)
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
