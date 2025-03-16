@@ -60,7 +60,7 @@ Flag It Up is an anti-money laundering (AML) system that helps financial institu
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/yourusername/flagitup.git
+   git clone https://github.com/Rahul-Ganatra/Flagitup
    cd flagitup
    ```
 
@@ -75,17 +75,10 @@ Flag It Up is an anti-money laundering (AML) system that helps financial institu
    - Add your Firebase configuration in `templates/index.html`
    - Download Firebase Admin SDK key and set it up
 
-4. **Environment Variables**
-   Create a `.env` file with:
-   ```
-   FLASK_APP=app.py
-   FLASK_ENV=development
-   FIREBASE_ADMIN_SDK_PATH=path/to/your/firebase-admin-sdk.json
-   ```
 
-5. **Run the Application**
+4. **Run the Application**
    ```bash
-   flask run
+   python app.py
    ```
 
 ## Usage
