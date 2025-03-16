@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Transactions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .header .subtitle {
+            margin-top: 0.5rem;
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        table {
+            width: 90%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #e0e0e0;
+        }
+
+        .button {
+            flex: 1;
+            padding: 0.875rem;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: white;
+            text-decoration: none;
+            max-width: 200px;
+            position: static;
+        }
+
+        .button.primary {
+            background: var(--info-color, #4895ef);
+        }
+
+        .button.danger {
+            background: var(--warning-color, #f72585);
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        @media (max-width: 640px) {
+            .button-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .button {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        .suspicious {
+            background-color: #ffebee !important;
+        }
+
+        .suspicious:hover {
+            background-color: #ffcdd2 !important;
+        }
+
+        .flag-icon {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+
+        .confidence-high {
+            color: #d32f2f;
+            font-weight: bold;
+        }
+
+        .confidence-medium {
+            color: #f57c00;
+            font-weight: bold;
+        }
+
+        .confidence-low {
+            color: #7cb342;
+            font-weight: bold;
+        }
+
+        .reason-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background-color: #ffebee;
+            color: #d32f2f;
+            font-size: 0.9em;
+            margin: 2px;
+        }
+    </style>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC0lMVVq_q-Pjd-R9VnnN-e9Sdp556qDKQ",
+            authDomain: "anti-money-landering.firebaseapp.com",
+            projectId: "anti-money-landering",
+            storageBucket: "anti-money-landering.firebasestorage.app",
+            messagingSenderId: "775468075770",
+            appId: "1:775468075770:web:1ffe61139ec2147d5ed743",
+            measurementId: "G-2FGQ872XXL"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Transaction tracking map
+        const transactionTracker = new Map();
+
+        // Function to get transaction key
+        function getTransactionKey(sender, receiver) {
+            return `${sender}-${receiver}`;
+        }
+
+        // Function to track small transactions
+        function trackSmallTransactions(transaction) {
+            const key = getTransactionKey(transaction.senderUsername, transaction.receiverUsername);
+            if (!transactionTracker.has(key)) {
+                transactionTracker.set(key, {
+                    count: 0,
+                    transactions: [],
+                    lastTimestamp: null
+                });
+            }
+
+            const tracker = transactionTracker.get(key);
+            const currentTime = transaction.timestamp.toDate();
+
+            // Reset counter if more than 24 hours have passed since last transaction
+            if (tracker.lastTimestamp &&
+                (currentTime - tracker.lastTimestamp) > (24 * 60 * 60 * 1000)) {
+                tracker.count = 0;
+                tracker.transactions = [];
+            }
+
+            if (transaction.amount < 1000) {
+                tracker.count++;
+                tracker.transactions.push({
+                    amount: transaction.amount,
+                    timestamp: currentTime
+                });
+                tracker.lastTimestamp = currentTime;
+            }
+
+            return tracker.count;
+        }
+
+        // Function to check for suspicious patterns
+        function checkSuspiciousPatterns(transaction) {
+            const reasons = [];
+            const timestamp = new Date(transaction.timestamp.toDate());
+            const hour = timestamp.getHours();
+
+            // Check for odd hours (2 AM - 5 AM)
+            if (hour >= 2 && hour < 5) {
+                reasons.push("Odd hours transaction");
+            }
+
+            // Check for high amount
+            if (transaction.amount > 50000) {
+                reasons.push("High amount");
+            }
+
+            // Check for international number
+            if (transaction.contactNumber && !transaction.contactNumber.startsWith('+91')) {
+                reasons.push("International number");
+            }
+
+            // Check for round amount
+            if (transaction.amount % 10000 === 0) {
+                reasons.push("Round amount");
+            }
+
+            // Check for small amount card/NEFT transactions
+            if (transaction.amount < 1000 &&
+                (transaction.transactionType === 'card' || transaction.transactionType === 'neft')) {
+                reasons.push("Suspicious small amount card/NEFT transaction");
+            }
+
+            // Check for frequent small transactions to same receiver
+            const txCount = trackSmallTransactions(transaction);
+            if (txCount > 3) {
+                const key = getTransactionKey(transaction.senderUsername, transaction.receiverUsername);
+                const tracker = transactionTracker.get(key);
+                const totalAmount = tracker.transactions.reduce((sum, tx) => sum + tx.amount, 0);
+                reasons.push(`Frequent small transactions (${txCount} times, total: ${totalAmount})`);
+            }
+
+            return reasons;
+        }
+
+        // Function to get confidence class
+        function getConfidenceClass(probability) {
+            if (probability >= 0.8) return 'confidence-high';
+            if (probability >= 0.5) return 'confidence-medium';
+            return 'confidence-low';
+        }
+
+        // Fetch and display transactions
+        async function fetchAndDisplayTransactions() {
+            const transactions = [];
+            const querySnapshot = await getDocs(collection(db, 'transactions'));
+
+            // Only get 'sent' transactions to avoid duplicates
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                if (data.transactionDirection === 'sent') {
+                    transactions.push({ ...data, id: doc.id });
+                }
+            });
+
+            // Sort transactions by timestamp
+            transactions.sort((a, b) =>
+                a.timestamp.toDate().getTime() - b.timestamp.toDate().getTime()
+            );
+
+            const tableBody = document.getElementById('transactionTableBody');
+            transactions.forEach(transaction => {
+                let paymentMethod = '';
+                if (transaction.transactionType === 'card') {
+                    paymentMethod = 'Card Payment';
+                } else if (transaction.transactionType === 'neft') {
+                    paymentMethod = 'NEFT Transfer';
+                } else if (transaction.transactionType === 'contact') {
+                    paymentMethod = 'Contact Payment';
+                }
+
+                // Check for suspicious patterns
+                const suspiciousReasons = checkSuspiciousPatterns(transaction);
+                const isSuspicious = suspiciousReasons.length > 0;
+
+                // Increase confidence for frequent small transactions
+                let baseConfidence = transaction.model_confidence || (isSuspicious ? 0.8 : 0.2);
+                const key = getTransactionKey(transaction.senderUsername, transaction.receiverUsername);
+                const tracker = transactionTracker.get(key);
+                if (tracker && tracker.count > 3) {
+                    baseConfidence = Math.max(baseConfidence, 0.9); // Higher confidence for frequent small transactions
+                }
+                const probability = baseConfidence;
+
+                const row = document.createElement('tr');
+                row.className = isSuspicious ? 'suspicious' : '';
+                row.innerHTML = `
+                    <td>${transaction.senderUsername}</td>
+                    <td>${transaction.receiverUsername}</td>
+                    <td>${transaction.transactionType}</td>
+                    <td>${transaction.amount}</td>
+                    <td>${paymentMethod}</td>
+                    <td>${transaction.cardNumber || '-'}</td>
+                    <td>${transaction.expiryDate || '-'}</td>
+                    <td>${transaction.cvv || '-'}</td>
+                    <td>${transaction.accountNumber || '-'}</td>
+                    <td>${transaction.ifscCode || '-'}</td>
+                    <td>${transaction.contactNumber || '-'}</td>
+                    <td>${transaction.timestamp ? new Date(transaction.timestamp.toDate()).toLocaleString() : '-'}</td>
+                    <td class="${getConfidenceClass(probability)}">
+                        ${isSuspicious ? '🚩 Yes' : 'No'}
+                        ${probability ? ` (${(probability * 100).toFixed(1)}%)` : ''}
+                    </td>
+                    <td>
+                        ${suspiciousReasons.map(reason =>
+                    `<span class="reason-tag">${reason}</span>`
+                ).join(' ')}
+                    </td>
+                `;
+                tableBody.appendChild(row);
+
+                // Update transaction in Firestore with suspicious flag if needed
+                if (isSuspicious && !transaction.is_suspicious) {
+                    updateDoc(doc(db, 'transactions', transaction.id), {
+                        is_suspicious: true,
+                        suspicion_reason: suspiciousReasons.join(', '),
+                        model_confidence: probability
+                    });
+                }
+            });
+        }
+
+        // Fetch and display flagged transactions
+        async function fetchAndDisplayFlaggedTransactions() {
+            const flaggedTransactions = [];
+            const querySnapshot = await getDocs(collection(db, 'flagged_transactions'));
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                flaggedTransactions.push(data);
+            });
+
+            const tableBody = document.getElementById('flaggedTransactionTableBody');
+            flaggedTransactions.forEach(transaction => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${transaction.senderUsername}</td>
+                    <td>${transaction.receiverUsername}</td>
+                    <td>${transaction.transactionType}</td>
+                    <td>${transaction.amount}</td>
+                    <td>${transaction.suspicion_reason || '-'}</td>
+                    <td>${transaction.timestamp ? new Date(transaction.timestamp.toDate()).toLocaleString() : '-'}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Logout function
+        window.logout = function () {
+            signOut(auth).then(() => {
+                window.location.href = '/';
+            }).catch((error) => {
+                console.error('Error signing out: ', error);
+            });
+        }
+
+        window.onload = function () {
+            fetchAndDisplayTransactions();
+            fetchAndDisplayFlaggedTransactions();
+        };
+    </script>
+</head>
+
+<body>
+    <div class="header">
+        <h1>Flag It Up</h1>
+        <div class="subtitle">Transaction List</div>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>From</th>
+                <th>To</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Payment Method</th>
+                <th>Card Number</th>
+                <th>Expiry Date</th>
+                <th>CVV</th>
+                <th>Account Number</th>
+                <th>IFSC Code</th>
+                <th>Contact Number</th>
+                <th>Date</th>
+                <th>Suspicious</th>
+                <th>Reasons</th>
+            </tr>
+        </thead>
+        <tbody id="transactionTableBody">
+            <!-- Transactions will be inserted here -->
+        </tbody>
+    </table>
+    <div class="button-container">
+        <button class="button primary" onclick="window.location.href='/admin'">
+            <i class="fas fa-tachometer-alt"></i>
+            Go to Dashboard
+        </button>
+        <button class="button danger" onclick="window.location.href='/'">
+            <i class="fas fa-sign-out-alt"></i>
+            Logout
+        </button>
+    </div>
+</body>
+
+</html>

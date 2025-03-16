@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard | Flag It Up</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --warning-color: #f72585;
+            --info-color: #4895ef;
+            --dark-color: #1e1e2c;
+            --light-color: #f8f9fa;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            --hover-shadow: 0 10px 15px rgba(67, 97, 238, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .dashboard-header {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo i {
+            font-size: 2rem;
+        }
+
+        .transaction-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: var(--card-shadow);
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .transaction-form:hover {
+            box-shadow: var(--hover-shadow);
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .user-id {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            background-color: white;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        select.form-control {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234361ee' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
+        }
+
+        .transaction-fields {
+            background: #f8fafc;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1.25rem;
+            border: 1.5px solid #e2e8f0;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .submit-button:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .button-container {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .button {
+            flex: 1;
+            padding: 0.875rem;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: white;
+        }
+
+        .button.primary {
+            background: var(--info-color);
+        }
+
+        .button.danger {
+            background: var(--warning-color);
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .error {
+            color: var(--warning-color);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+
+            .transaction-form {
+                padding: 1.5rem;
+            }
+
+            .button-container {
+                flex-direction: column;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+    <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, where, getDocs, getDoc, doc } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC0lMVVq_q-Pjd-R9VnnN-e9Sdp556qDKQ",
+            authDomain: "anti-money-landering.firebaseapp.com",
+            projectId: "anti-money-landering",
+            storageBucket: "anti-money-landering.firebasestorage.app",
+            messagingSenderId: "775468075770",
+            appId: "1:775468075770:web:1ffe61139ec2147d5ed743",
+            measurementId: "G-2FGQ872XXL"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let userId = null;
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                userId = user.uid;
+                document.getElementById('user-id').textContent = `User ID: ${userId}`;
+            } else {
+                window.location.href = '/'; // Redirect to login if not authenticated
+            }
+        });
+
+        window.submitTransaction = async function () {
+            const transactionType = document.getElementById('transaction-type').value;
+            const amount = document.getElementById('amount').value;
+            const details = document.getElementById('details').value;
+            const cardNumber = document.getElementById('card-number').value.replace(/\s/g, '');
+            const expiryDate = document.getElementById('expiry-date').value;
+            const cvv = document.getElementById('cvv').value;
+            const accountNumber = document.getElementById('account-number').value;
+            const ifscCode = document.getElementById('ifsc-code').value;
+            const contactNumber = document.getElementById('contact-number').value;
+
+            if (transactionType === 'contact' && (!contactNumber.startsWith('+91') || contactNumber.length !== 13)) {
+                alert('Please add country code prefix and ensure the contact number is 10 digits long');
+                return;
+            }
+
+            if (transactionType && amount && details) {
+                if (transactionType === 'card') {
+                    if (!cardNumber || !expiryDate || !cvv) {
+                        alert('Please fill in card number, expiry date, and CVV for card transactions');
+                        return;
+                    }
+                    if (cardNumber.length !== 16) {
+                        alert('Card number must be exactly 16 digits');
+                        return;
+                    }
+                    if (!validateExpiryDate(expiryDate)) {
+                        alert('Invalid expiry date. Please ensure the month is between 01 and 12 and the year is not in the past.');
+                        return;
+                    }
+                }
+                if (transactionType === 'neft' && (!accountNumber || ifscCode.length !== 11)) {
+                    alert('Please fill in account number and a valid 11-character IFSC code for NEFT transactions');
+                    return;
+                }
+                if (transactionType === 'contact' && (!contactNumber || contactNumber.length !== 13)) {
+                    alert('Please fill in a valid 13-digit contact number for contact transactions');
+                    return;
+                }
+
+                try {
+                    const db = getFirestore();
+
+                    // Get receiver's data from Firestore
+                    const usersRef = collection(db, 'users');
+                    const q = query(usersRef, where('username', '==', details));
+                    const querySnapshot = await getDocs(q);
+
+                    if (querySnapshot.empty) {
+                        alert('Recipient username not found');
+                        return;
+                    }
+
+                    const receiverData = querySnapshot.docs[0].data();
+                    const receiverId = querySnapshot.docs[0].id;
+
+                    // Get sender's username
+                    const senderDoc = await getDoc(doc(db, 'users', userId));
+                    const senderUsername = senderDoc.data().username;
+
+                    // Create sender's transaction record
+                    await addDoc(collection(db, 'transactions'), {
+                        senderId: userId,
+                        senderUsername: senderUsername,
+                        receiverId: receiverId,
+                        receiverUsername: receiverData.username,
+                        transactionType: transactionType,
+                        amount: parseFloat(amount),
+                        transactionDirection: 'sent',
+                        details: `Sent to ${receiverData.username}`,
+                        cardNumber: transactionType === 'card' ? cardNumber : null,
+                        expiryDate: transactionType === 'card' ? expiryDate : null,
+                        cvv: transactionType === 'card' ? cvv : null,
+                        accountNumber: transactionType === 'neft' ? accountNumber : null,
+                        ifscCode: transactionType === 'neft' ? ifscCode : null,
+                        contactNumber: transactionType === 'contact' ? contactNumber : null,
+                        timestamp: new Date()
+                    });
+
+                    // Create receiver's transaction record
+                    await addDoc(collection(db, 'transactions'), {
+                        senderId: userId,
+                        senderUsername: senderUsername,
+                        receiverId: receiverId,
+                        receiverUsername: receiverData.username,
+                        transactionType: transactionType,
+                        amount: parseFloat(amount),
+                        transactionDirection: 'received',
+                        details: `Received from ${senderUsername}`,
+                        cardNumber: transactionType === 'card' ? cardNumber : null,
+                        expiryDate: transactionType === 'card' ? expiryDate : null,
+                        cvv: transactionType === 'card' ? cvv : null,
+                        accountNumber: transactionType === 'neft' ? accountNumber : null,
+                        ifscCode: transactionType === 'neft' ? ifscCode : null,
+                        contactNumber: transactionType === 'contact' ? contactNumber : null,
+                        timestamp: new Date()
+                    });
+
+                    alert('Transaction submitted successfully!');
+                } catch (error) {
+                    alert('Error submitting transaction: ' + error.message);
+                }
+            } else {
+                alert('Please fill in all fields');
+            }
+        };
+
+        window.toggleTransactionFields = function () {
+            const transactionType = document.getElementById('transaction-type').value;
+            const cardFields = document.getElementById('card-fields');
+            const neftFields = document.getElementById('neft-fields');
+            const contactFields = document.getElementById('contact-fields');
+            cardFields.style.display = transactionType === 'card' ? 'block' : 'none';
+            neftFields.style.display = transactionType === 'neft' ? 'block' : 'none';
+            contactFields.style.display = transactionType === 'contact' ? 'block' : 'none';
+        };
+
+        window.navigateToTransactionHistory = function () {
+            window.location.href = '/user/transactions';
+        };
+
+        window.logout = function () {
+            signOut(auth).then(() => {
+                window.location.href = '/';
+            }).catch((error) => {
+                console.error('Error signing out: ', error);
+            });
+        };
+
+        window.formatExpiryDate = function (event) {
+            const input = event.target;
+            let value = input.value.replace(/\D/g, '');
+            if (value.length > 2) {
+                value = value.slice(0, 2) + '/' + value.slice(2);
+            }
+            input.value = value;
+        };
+
+        window.formatCardNumber = function (event) {
+            const input = event.target;
+            let value = input.value.replace(/\D/g, '');
+            if (value.length > 16) {
+                value = value.slice(0, 16);
+            }
+            input.value = value.replace(/(.{4})/g, '$1 ').trim();
+        };
+
+        window.maskCVV = function (event) {
+            const input = event.target;
+            input.type = 'password';
+            input.maxLength = 3;
+        };
+
+        function validateExpiryDate(expiryDate) {
+            const [month, year] = expiryDate.split('/').map(Number);
+            if (!month || !year || month < 1 || month > 12) {
+                return false;
+            }
+            const currentYear = new Date().getFullYear() % 100; // Get last two digits of the current year
+            const currentMonth = new Date().getMonth() + 1; // Months are zero-indexed
+            if (year < currentYear || (year === currentYear && month < currentMonth)) {
+                return false;
+            }
+            return true;
+        }
+
+        function addPrefix() {
+            const input = document.getElementById('contact-number');
+            if (!input.value.startsWith('+91')) {
+                input.value = '+91'; // Add the prefix if not already present
+            }
+            input.setSelectionRange(input.value.length, input.value.length); // Move cursor to the end
+        }
+
+        function formatContactNumber() {
+            const input = document.getElementById('contact-number');
+            // Ensure the input is limited to 10 digits after the prefix
+            const value = input.value.replace(/\D/g, ''); // Remove non-digit characters
+            if (value.length > 10) {
+                input.value = value.slice(0, 10); // Limit to 10 digits
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div class="dashboard-header">
+        <div class="logo">
+            <i class="fas fa-shield-alt"></i>
+            FLAG IT UP
+        </div>
+    </div>
+
+    <div class="transaction-form">
+        <div class="form-header">
+            <h2 class="form-title">Make a Transaction</h2>
+            <p class="user-id" id="user-id">User ID: Loading...</p>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="transaction-type">Transaction Type</label>
+            <select id="transaction-type" class="form-control" onchange="toggleTransactionFields()">
+                <option value="">Select Transaction Type</option>
+                <option value="card">Card Payment</option>
+                <option value="contact">Contact Payment</option>
+                <option value="neft">NEFT Transfer</option>
+            </select>
+        </div>
+
+        <div id="card-fields" class="transaction-fields" style="display: none;">
+            <div class="form-group">
+                <label class="form-label" for="card-number">Card Number</label>
+                <input type="text" id="card-number" class="form-control" placeholder="1234 5678 9012 3456"
+                    oninput="formatCardNumber(event)">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="expiry-date">Expiry Date</label>
+                <input type="text" id="expiry-date" class="form-control" placeholder="MM/YY"
+                    oninput="formatExpiryDate(event)">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="cvv">CVV</label>
+                <input type="text" id="cvv" class="form-control" placeholder="123" onfocus="maskCVV(event)">
+            </div>
+        </div>
+
+        <div id="neft-fields" class="transaction-fields" style="display: none;">
+            <div class="form-group">
+                <label class="form-label" for="account-number">Account Number</label>
+                <input type="text" id="account-number" class="form-control" placeholder="Enter account number">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="ifsc-code">IFSC Code</label>
+                <input type="text" id="ifsc-code" class="form-control" placeholder="BANK0123456" maxlength="11">
+            </div>
+        </div>
+
+        <div id="contact-fields" class="transaction-fields" style="display: none;">
+            <div class="form-group">
+                <label class="form-label" for="contact-number">Contact Number</label>
+                <input type="text" id="contact-number" class="form-control" placeholder="+91 1234567890" maxlength="13"
+                    onfocus="addPrefix()" oninput="formatContactNumber()">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="amount">Amount (₹)</label>
+            <input type="number" id="amount" class="form-control" placeholder="Enter amount">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="details">Recipient Username</label>
+            <input type="text" id="details" class="form-control" placeholder="Enter recipient's username">
+        </div>
+
+        <button class="submit-button" onclick="submitTransaction()">
+            <i class="fas fa-paper-plane"></i>
+            Send Payment
+        </button>
+
+        <div class="button-container">
+            <button class="button primary" onclick="navigateToTransactionHistory()">
+                <i class="fas fa-history"></i>
+                Transaction History
+            </button>
+            <button class="button danger" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+        </div>
+    </div>
+</body>
+
+</html>

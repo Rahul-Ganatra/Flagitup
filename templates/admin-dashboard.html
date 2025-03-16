@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Flag It Up</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --warning-color: #f72585;
+            --info-color: #4895ef;
+            --dark-color: #1e1e2c;
+            --light-color: #f8f9fa;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            --hover-shadow: 0 10px 15px rgba(67, 97, 238, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: var(--dark-color);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo i {
+            font-size: 2rem;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary-color), var(--success-color));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .chart-container:hover {
+            box-shadow: var(--hover-shadow);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .chart-title i {
+            color: var(--primary-color);
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        .button-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            text-decoration: none;
+        }
+
+        .button.primary {
+            background-color: var(--primary-color);
+        }
+
+        .button.danger {
+            background-color: var(--warning-color);
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        @media (max-width: 1200px) {
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+
+            body {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC0lMVVq_q-Pjd-R9VnnN-e9Sdp556qDKQ",
+            authDomain: "anti-money-landering.firebaseapp.com",
+            projectId: "anti-money-landering",
+            storageBucket: "anti-money-landering.firebasestorage.app",
+            messagingSenderId: "775468075770",
+            appId: "1:775468075770:web:1ffe61139ec2147d5ed743",
+            measurementId: "G-2FGQ872XXL"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Chart.js default configuration
+        Chart.defaults.font.family = "'Segoe UI', sans-serif";
+        Chart.defaults.font.size = 13;
+        Chart.defaults.plugins.tooltip.padding = 10;
+        Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        Chart.defaults.plugins.tooltip.titleColor = '#fff';
+        Chart.defaults.plugins.tooltip.bodyColor = '#fff';
+        Chart.defaults.plugins.tooltip.borderColor = 'rgba(255, 255, 255, 0.1)';
+        Chart.defaults.plugins.tooltip.borderWidth = 1;
+        Chart.defaults.plugins.tooltip.cornerRadius = 6;
+
+        // Fetch transaction data from Firestore
+        async function fetchTransactionData() {
+            const transactions = [];
+            const querySnapshot = await getDocs(collection(db, 'transactions'));
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                if (data.transactionDirection === 'sent') {
+                    transactions.push(data);
+                }
+            });
+            return transactions;
+        }
+
+        // Fetch user data from Firestore
+        async function fetchUserData() {
+            const users = [];
+            const querySnapshot = await getDocs(collection(db, 'users'));
+            querySnapshot.forEach((doc) => {
+                users.push(doc.data());
+            });
+            return users;
+        }
+
+        // Update dashboard statistics with animation
+        async function updateStats(transactions, users) {
+            const stats = {
+                totalUsers: users.length,
+                totalTransactions: transactions.length,
+                riskyTransactions: transactions.filter(t => t.is_suspicious).length,
+                totalAmount: transactions.reduce((sum, t) => sum + (t.amount || 0), 0)
+            };
+
+            Object.entries(stats).forEach(([key, value]) => {
+                const element = document.getElementById(key);
+                animateNumber(element, 0, value, 1000);
+            });
+        }
+
+        // Number animation function
+        function animateNumber(element, start, end, duration) {
+            const startTime = performance.now();
+            const isPrice = element.id === 'totalAmount';
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                const current = Math.floor(start + (end - start) * progress);
+                element.textContent = isPrice ? `₹${current.toLocaleString()}` : current.toLocaleString();
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        // Render transaction amount chart
+        function renderAmountChart(transactions) {
+            const ctx = document.getElementById('amountChart').getContext('2d');
+            const sortedTransactions = transactions.sort((a, b) => {
+                return new Date(a.timestamp.toDate()) - new Date(b.timestamp.toDate());
+            });
+
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(52, 152, 219, 0.2)');
+            gradient.addColorStop(1, 'rgba(52, 152, 219, 0)');
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: sortedTransactions.map(t =>
+                        new Date(t.timestamp.toDate()).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric'
+                        })
+                    ),
+                    datasets: [{
+                        label: 'Transaction Amount (₹)',
+                        data: sortedTransactions.map(t => t.amount),
+                        borderColor: '#3498db',
+                        backgroundColor: gradient,
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: false
+                        },
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function (context) {
+                                    return `Amount: ₹${context.parsed.y.toLocaleString()}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#f0f0f0'
+                            },
+                            ticks: {
+                                callback: function (value) {
+                                    return '₹' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Render payment methods chart
+        function renderMethodsChart(transactions) {
+            const ctx = document.getElementById('methodsChart').getContext('2d');
+            const methods = {};
+            transactions.forEach(t => {
+                methods[t.transactionType] = (methods[t.transactionType] || 0) + 1;
+            });
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(methods),
+                    datasets: [{
+                        data: Object.values(methods),
+                        backgroundColor: [
+                            '#3498db',
+                            '#2ecc71',
+                            '#e74c3c',
+                            '#f1c40f'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: false
+                        },
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return `${context.label}: ${context.parsed} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Render risky transactions chart
+        function renderRiskyChart(transactions) {
+            const ctx = document.getElementById('riskyChart').getContext('2d');
+            const riskyData = transactions.filter(t => t.is_suspicious);
+            const categories = {
+                'Odd hours': 0,
+                'High amount': 0,
+                'International': 0,
+                'Frequent small': 0,
+                'Other': 0
+            };
+
+            riskyData.forEach(t => {
+                const reason = t.suspicion_reason || '';
+                if (reason.includes('Odd hours')) categories['Odd hours']++;
+                if (reason.includes('High amount')) categories['High amount']++;
+                if (reason.includes('International')) categories['International']++;
+                if (reason.includes('Frequent small')) categories['Frequent small']++;
+                if (!reason) categories['Other']++;
+            });
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(categories),
+                    datasets: [{
+                        label: 'Number of Transactions',
+                        data: Object.values(categories),
+                        backgroundColor: [
+                            '#e74c3c',
+                            '#e67e22',
+                            '#f1c40f',
+                            '#2ecc71',
+                            '#95a5a6'
+                        ],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: false
+                        },
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return `Count: ${context.parsed.y}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#f0f0f0'
+                            },
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Render user activity chart
+        function renderUserActivityChart(transactions) {
+            const ctx = document.getElementById('userActivityChart').getContext('2d');
+            const userActivity = {};
+            transactions.forEach(t => {
+                userActivity[t.senderUsername] = (userActivity[t.senderUsername] || 0) + 1;
+            });
+
+            const sortedUsers = Object.entries(userActivity)
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 10);
+
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, '#17a2b8');
+            gradient.addColorStop(1, '#4dd4e9');
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sortedUsers.map(([user]) => user),
+                    datasets: [{
+                        label: 'Transactions',
+                        data: sortedUsers.map(([, count]) => count),
+                        backgroundColor: gradient,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: false
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#f0f0f0'
+                            },
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize dashboard
+        async function initializeDashboard() {
+            try {
+                const transactions = await fetchTransactionData();
+                const users = await fetchUserData();
+
+                updateStats(transactions, users);
+                renderAmountChart(transactions);
+                renderMethodsChart(transactions);
+                renderRiskyChart(transactions);
+                renderUserActivityChart(transactions);
+            } catch (error) {
+                console.error('Error initializing dashboard:', error);
+                // Show error message to user
+            }
+        }
+
+        // Check authentication state
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = '/';
+            } else {
+                initializeDashboard();
+            }
+        });
+
+        // Logout function
+        window.logout = function () {
+            signOut(auth).then(() => {
+                window.location.href = '/';
+            }).catch((error) => {
+                console.error('Error signing out:', error);
+            });
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="dashboard-header">
+        <div class="logo">
+            <i class="fas fa-shield-alt"></i>
+            FLAG IT UP
+        </div>
+    </div>
+
+    <div class="stats-container">
+        <div class="stat-card">
+            <i class="fas fa-users stat-icon"></i>
+            <div class="stat-number" id="totalUsers">0</div>
+            <div class="stat-label">Total Users</div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-exchange-alt stat-icon"></i>
+            <div class="stat-number" id="totalTransactions">0</div>
+            <div class="stat-label">Total Transactions</div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-exclamation-triangle stat-icon"></i>
+            <div class="stat-number" id="riskyTransactions">0</div>
+            <div class="stat-label">Risky Transactions</div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-rupee-sign stat-icon"></i>
+            <div class="stat-number" id="totalAmount">₹0</div>
+            <div class="stat-label">Total Amount</div>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="chart-container">
+            <div class="chart-header">
+                <h2 class="chart-title">
+                    <i class="fas fa-chart-line"></i>
+                    Transaction Trends
+                </h2>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="amountChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-header">
+                <h2 class="chart-title">
+                    <i class="fas fa-credit-card"></i>
+                    Payment Methods
+                </h2>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="methodsChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-header">
+                <h2 class="chart-title">
+                    <i class="fas fa-exclamation-circle"></i>
+                    Risk Categories
+                </h2>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="riskyChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-header">
+                <h2 class="chart-title">
+                    <i class="fas fa-user-chart"></i>
+                    Top Active Users
+                </h2>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="userActivityChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="button-container">
+        <a href="/admin/transactions" class="button primary">
+            <i class="fas fa-list"></i>
+            Show Transactions
+        </a>
+        <button onclick="logout()" class="button danger">
+            <i class="fas fa-sign-out-alt"></i>
+            Logout
+        </button>
+    </div>
+</body>
+
+</html>
