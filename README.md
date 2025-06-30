@@ -81,6 +81,11 @@ Flag It Up is an anti-money laundering (AML) system that helps financial institu
    python app.py
    ```
 
+## OUTPUTS
+
+![image](https://github.com/user-attachments/assets/64db2c0a-33f4-40a4-b382-0423bb1f9861)
+![image](https://github.com/user-attachments/assets/aa046168-4ca4-4217-b1db-94573a0c20f1)
+
 ## Usage
 
 ### User Interface
